@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <meta charset="UTF-8">
+  <title>RowMatron 1.0</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Poppins, sans-serif;
+      margin: 0;
+    }
+    p {
+      font-size: 400px;
+      font-weight: bolder;
+      font-family: Poppins,sans-serif ;
+      margin: 0;
+      user-select: none;
+      cursor: none;
+    }
+    .button-3 {
+      appearance: none;
+      background-color: #1a4fff;
+      border: 1px solid rgba(27, 31, 35, .15);
+      border-radius: 50px;
+      box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+      box-sizing: border-box;
+      color: #fff;
+      cursor: pointer;
+      display: inline-block;
+      font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+      font-size: 80px;
+      font-weight: 600;
+      line-height: 20px;
+      padding: 6px 16px;
+      position: relative;
+      text-align: center;
+      text-decoration: none;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      vertical-align: middle;
+      white-space: nowrap;
+      margin: 10px 10px 10px 10px;
+                                                     }
+
+    .button-3:focus:not(:focus-visible):not(.focus-visible) {
+      box-shadow: none;
+      outline: none;
+    }
+
+    .button-3:hover {
+      background-color: #3959b9;
+    }
+
+    .button-3:focus {
+      box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
+      outline: none;
+    }
+
+    .button-3:disabled {
+      background-color: #94d3a2;
+      border-color: rgba(27, 31, 35, .1);
+      color: rgba(255, 255, 255, .8);
+      cursor: default;
+    }
+
+    .button-3:active {
+      background-color: #5a81ff;;
+      box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+    }
+  </style>
+</head>
+<body style="height: 100%; width: 100%; display: flex">
+
+
+
+
+<div style="height: 100%; width: 70%; display: flex;" class="hide-on-connect">
+  <button id="StartScan" class="button-3" style="top: 15px; left: 15px; height: 300px; width: 300px;
+   align-self: center; justify-self: center; margin: auto"><i style="font-size: 200px" class="fa fa-bluetooth"></i><p style="font-size: 20px; position: relative; top: 15px;">Connect die shit</p></button>
+
+</div>
+<div style="height: 100%; width: 30%; display: flex;" class="hide-on-connect">
+  <textarea id="textarea" name="players" rows="4" cols="50" style="background-color: #171717; color: white; border: none; font-size: 30px; margin-top: 30px; margin-bottom: 30px; margin-right: 10px; resize: none">Players,Seperated,By,Comma</textarea>
+</div>
+
+<button id="NextPlayer" class="button-3" style="top: 15px; left: 15px; height: 100px; width: 100px;
+   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-arrow-right"></i><p style="font-size: 10px; position: relative; top: 0px;">Next Player</p></button>
+
+<button id="Check1" class="button-3" style="top: 200px; left: 15px; height: 100px; width: 100px;
+   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-refresh"></i><p style="font-size: 10px; position: relative; top: 15px;">Reset</p></button>
+
+<!--<button id="Debug" class="button-3" style="top: 400px; left: 15px; height: 100px; width: 100px;
+   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-ship"></i><p style="font-size: 10px; position: relative; top: 15px;">Debug</p></button>-->
+<button id="Polling" class="button-3" style="top: 600px; left: 15px; height: 100px; width: 100px;
+   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-cab"></i><p style="font-size: 10px; position: relative; top: 15px;">Polling</p></button>
+
+
+<div id="holder" style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center">
+
+
+
+  <div id="data" style="height: 100%; width: 80%; display: flex; flex-direction: column; align-items: center; justify-content: center"> <!-- justify-content: center;   -->
+    <div style="width: 100%; height: 10%; display: flex; align-items: center; justify-content: center;"><p id="currentPlayer" style="font-size: 50px">currPlayer</p></div>
+    <div style="width: 100%; height: 45%; display: flex;align-items: center; justify-content: center;"><p id="time">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom: 100px;">s</p></div>
+    <div style="width: 100%; height: 45%;display: flex;align-items: center; justify-content: center;"><p id="distance">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom: 100px;">m</p></div>
+  </div>
+  <div id="scoreboard" style="height: 100%; width: 20%; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; font-size: 30px;">
+    <h3>Scoreboard:</h3>
+    <ol id="scoreboard-object">
+      No times yet!
+    </ol>
+  </div>
+
+</div>
+
+
+
+
+<!--<h2>Info</h2>
+
+
+<p id="data">
+  Extra info
+</p>-->
+
+</body>
+<script src="libs/jquery/jquery.js"></script>
+<script src="libs/ergometer.js"></script>
+<script src="app.js"></script>
+</html>
