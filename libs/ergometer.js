@@ -4024,7 +4024,7 @@ var ergometer;
             _this._devices = [];
             _this._multiplex = false;
             _this._multiplexSubscribeCount = 0;
-            _this._sampleRate = 1 /* rate500ms */;
+            _this._sampleRate = 3 /* rate500ms */;
             //disabled the auto reconnect, because it reconnects while the connection on the device is switched off
             //this causes some strange state on the device which breaks communcation after reconnecting
             _this._autoReConnect = false;

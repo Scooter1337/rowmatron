@@ -7,7 +7,7 @@
   <style>
     body {
       background-color: black;
-      color: white;
+      color: grey;
       font-family: Poppins, sans-serif;
       margin: 0;
     }
@@ -19,6 +19,10 @@
       user-select: none;
       cursor: none;
     }
+    li {
+      border-bottom: 1px grey;
+    }
+
     .button-3 {
       appearance: none;
       background-color: #1a4fff;
@@ -43,6 +47,7 @@
       vertical-align: middle;
       white-space: nowrap;
       margin: 10px 10px 10px 10px;
+      margin-left: 30px;
                                                      }
 
     .button-3:focus:not(:focus-visible):not(.focus-visible) {
@@ -86,17 +91,18 @@
   <textarea id="textarea" name="players" rows="4" cols="50" style="background-color: #171717; color: white; border: none; font-size: 30px; margin-top: 30px; margin-bottom: 30px; margin-right: 10px; resize: none">Players,Seperated,By,Comma</textarea>
 </div>
 
-<button id="NextPlayer" class="button-3" style="top: 15px; left: 15px; height: 100px; width: 100px;
+<button id="NextPlayer" class="button-3" style="top: 15px; left: 50px; height: 100px; width: 100px;
    align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-arrow-right"></i><p style="font-size: 10px; position: relative; top: 0px;">Next Player</p></button>
 
-<button id="Check1" class="button-3" style="top: 200px; left: 15px; height: 100px; width: 100px;
+<button id="Check1" class="button-3" style="top: 200px; left: 50px; height: 100px; width: 100px;
    align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-refresh"></i><p style="font-size: 10px; position: relative; top: 15px;">Reset</p></button>
 
 <!--<button id="Debug" class="button-3" style="top: 400px; left: 15px; height: 100px; width: 100px;
-   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-ship"></i><p style="font-size: 10px; position: relative; top: 15px;">Debug</p></button>-->
+   align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-ship"></i><p style="font-size: 10px; position: relative; top: 15px;">Debug</p></button>
+
 <button id="Polling" class="button-3" style="top: 600px; left: 15px; height: 100px; width: 100px;
    align-self: center; justify-self: center; margin: auto; position: absolute"><i style="font-size: 40px" class="fa fa-cab"></i><p style="font-size: 10px; position: relative; top: 15px;">Polling</p></button>
-
+-->
 
 <div id="holder" style="height: 100%; width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center">
 
@@ -104,14 +110,19 @@
 
   <div id="data" style="height: 100%; width: 80%; display: flex; flex-direction: column; align-items: center; justify-content: center"> <!-- justify-content: center;   -->
     <div style="width: 100%; height: 10%; display: flex; align-items: center; justify-content: center;"><p id="currentPlayer" style="font-size: 50px">currPlayer</p></div>
-    <div style="width: 100%; height: 45%; display: flex;align-items: center; justify-content: center;"><p id="time">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom: 100px;">s</p></div>
-    <div style="width: 100%; height: 45%;display: flex;align-items: center; justify-content: center;"><p id="distance">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom: 100px;">m</p></div>
+    <div style="width: 100%; height: 43%; display: flex;align-items: center; justify-content: center;"><p id="time">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom: 60px;">s</p></div>
+    <div style="width: 0; height: 4%; background-color: white; z-index: 10000; align-self: flex-start" id="ghost-bar"></div>
+    <div style="width: 100%; height: 43%;display: flex;align-items: center; justify-content: center;"><p id="distance">0</p><p style="font-size: 100px; align-self: flex-end; position: relative; bottom:60px;">m</p></div>
   </div>
-  <div id="scoreboard" style="height: 100%; width: 20%; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; font-size: 30px;">
-    <h3>Scoreboard:</h3>
-    <ol id="scoreboard-object">
+  <div id="scoreboard" style="height: 100%; width: 20%; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; font-size: 30px;">
+    <div><h3>Scoreboard:</h3>
+    <ol id="scoreboard-object" style="padding: 0">
       No times yet!
-    </ol>
+    </ol></div>
+    <div id="projected-time-box" style="justify-self: end; font-size: 20px; margin-bottom: 70px; display: flex; align-items: center; justify-content: center; flex-direction: column; background-color: black;padding: 20px; border-radius: 20px; color: white">
+    <h3>Projected Time:</h3>
+    <p id="projected-time" style="font-size: 30px;"> 0s </p>
+    </div>
   </div>
 
 </div>

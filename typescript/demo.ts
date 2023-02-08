@@ -117,7 +117,7 @@ class Demo {
     protected onConnectionStateChanged(oldState : ergometer.MonitorConnectionState, newState : ergometer.MonitorConnectionState) {
 
         if (newState==ergometer.MonitorConnectionState.readyForCommunication) {
-            //this.performanceMonitor.sampleRate=SampleRate.rate250ms;
+            this.performanceMonitor.sampleRate=3;
             this.showData(JSON.stringify( this._performanceMonitor.deviceInfo));
 
             //send two commands and show the results in a jquery way
