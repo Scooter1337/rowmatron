@@ -39,11 +39,11 @@ let RowMatronApp = /** @class */ (function () {
 
 
     }
-
     RowMatronApp.prototype.updateScoreboardArrayAndObject = function () {
         const player = this._players[this.currentPlayerData.id];
-        const time = this.currentPlayerBestTime;
-        this._scoreBoard.push({player: player, time: time});
+        const time = this.currentPlayerData.bestTime;
+        const timestamps = this.currentPlayerData.timestamps;
+        this._scoreBoard.push({player: player, time: time, timestamps: timestamps});
         this._scoreBoard = this._scoreBoard.sort((a,b) => {
             if(typeof a.time === 'number' && typeof b.time == 'number') {
                 return a.time - b.time;
@@ -61,13 +61,10 @@ let RowMatronApp = /** @class */ (function () {
             $ul.append($li);
         }
     }
-
     RowMatronApp.prototype.timeToSeconds = function (time) {
         //console.error('Berekend:' + Math.floor(time / 100) /10);
         return Math.floor(time / 100) /10;
     }
-
-
     RowMatronApp.prototype.showInfo = function (info) {
         $("#info").text(info);
     };
@@ -83,12 +80,13 @@ let RowMatronApp = /** @class */ (function () {
             $("#distance").text(Math.round(distance));
             const percentage = Math.round((data['distance']/data['workoutDuration'])*100);
             //I'd rather replace this with a div with z-index -10000, so we can add transitions to make it less choppy
-            //Not a priority, with 10Hz its pretty smooth already.
+            //Not a priority, with 10Hz it's pretty smooth already.
             updateBackground(percentage);
 
             if(this._scoreBoard.length > 0 && this.currentPlayerData.id > 0 && this.showGhost) { //ghost
-                const bestTime = this._scoreBoard[0].time;
-                const width = Math.min(data['elapsedTime'] / bestTime, 1) * $(document).width();
+                const ghostDistance = getGhostDistance(this.currentPlayerData, time);
+                const ghostPercentage = ghostDistance / data['workoutDuration'];
+                const width = Math.min(ghostPercentage, 1) * $(document).width();
                 $("#ghost-bar").width(width);
             }
         }
@@ -119,7 +117,7 @@ let RowMatronApp = /** @class */ (function () {
             players[j] = temp;
         }
         this._players = players.length > 0 ? players : ['anonymous'];
-        setStorage('players', $("#textarea").val());
+        setStorage('players', text);
     }
 
     /*RowMatronApp.prototype.changePollingRateToFastest = function () {
@@ -194,8 +192,8 @@ let RowMatronApp = /** @class */ (function () {
         this.updateDataDisplay(data, true); // + JSON.stringify
         //console.log('RowingGeneralStatus: ');
         //console.log(data);
-        this.currentPlayerBestTime = data['elapsedTime'];
-
+        this.currentPlayerData.bestTime = data['elapsedTime'];
+        this.currentPlayerData.timestamps.push({time: data['elapsedTime'], distance: data['distance']})
     };
     RowMatronApp.prototype.onRowingAdditionalStatus1 = function (data) {
         this.updateDataDisplay('RowingAdditionalStatus1: ' + JSON.stringify(data));
@@ -362,5 +360,41 @@ function hideOnStart() {
 
 function updateBackground(percentage) {
     document.body.style.backgroundImage = "linear-gradient(90deg, blue " + percentage + "%, transparent 0%)";
+
+
+
+}
+
+function getGhostDistance(playerdata, currentTime) {
+    let distance;
+    playerdata.timestamps.filter((e, i, m) => {
+        if (i === 0 && currentTime < e.time) {
+            return true;
+        }
+        if (e.time === currentTime) {
+            return true;
+        }
+        if (i < m.length-1 && m[i].time <= currentTime && m[i+1].time > currentTime) {
+            return true;
+        }
+        if (i > 0 && m[i-1].time <= currentTime && m[i].time > currentTime) {
+            return true;
+        }
+        return false;
+    })
+
+    if (playerdata[0].time === currentTime) {
+        playerdata = playerdata[0];
+        distance = playerdata.distance;
+    } else {
+        let timepassed = currentTime - playerdata[0].time;
+        let timepercentagepassed = timepassed / (playerdata[1].time - playerdata[0].time);
+        let distancepassed = playerdata[1].distance - playerdata[0].distance;
+        console.debug(timepercentagepassed, distancepassed);
+        distance = playerdata[0].distance + (distancepassed * timepercentagepassed);
+    }
+
+
+    return distance;
 
 }

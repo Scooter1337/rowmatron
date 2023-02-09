@@ -1178,7 +1178,7 @@ var ergometer;
               });
             }
 
-            private onCharacteristicValueChanged(event:webbluetooth.CharacteristicsValueChangedEvent) {
+            private onCharacteristicValueChanged(event:rowmatron.CharacteristicsValueChangedEvent) {
               if (this._performanceMonitor.logLevel==LogLevel.trace)
                 this._performanceMonitor.traceInfo(`onCharacteristicValueChanged ${event.target.uuid} : ${utils.typedArrayToHexString(event.target.value.buffer)} `);
               //this may prevent hanging, just a test
