@@ -10,8 +10,8 @@ let RowMatronApp = /** @class */ (function () {
     function RowMatronApp() {
         this.initialize();
         $("#holder").hide();
-        $("#Check1").hide();
-        $("#NextPlayer").hide();
+        $("#reset-button").hide();
+        $("#next-player").hide();
         //$("#scoreboard").hide();
     }
     Object.defineProperty(RowMatronApp.prototype, "performanceMonitor", {
@@ -156,7 +156,7 @@ let RowMatronApp = /** @class */ (function () {
         //this.performanceMonitor.heartRateBeltInformationEvent.sub(this, this.onHeartRateBeltInformation);
         this.performanceMonitor.additionalWorkoutSummaryData2Event.sub(this, this.onAdditionalWorkoutSummaryData2);
         this.performanceMonitor.powerCurveEvent.sub(this, this.onPowerCurve);
-        $("#StartScan").click(function () {
+        $("#start-ble-button").click(function () {
             _this.getPlayersFromTextArea();
             _this.startScan();
         });
@@ -165,14 +165,14 @@ let RowMatronApp = /** @class */ (function () {
         }
     };
 
-    RowMatronApp.prototype.NextPlayer = function () {
+    RowMatronApp.prototype.nextPlayer = function () {
         this.currentPlayerData.id++;
         this.currentPlayerData.bestTime = 0;
         this.currentPlayerData.pace = 0;
         this.currentPlayerData.timestamps = [];
         this.setCurrentPlayerDisplay();
         this.resetPM();
-        $("#NextPlayer").hide();
+        $("#next-player").hide();
         this.showGhost = true;
     }
     RowMatronApp.prototype.resetPM = function () {
@@ -184,7 +184,7 @@ let RowMatronApp = /** @class */ (function () {
             waitForResponse: false
         }).send().then(() => this.setCustomDistance(100)); //F1 76 04 13 02 01 02 62 F2
     }
-    RowMatronApp.prototype.onLog = function (info, logLevel) {
+    RowMatronApp.prototype.onLog = function (info) {
         this.updateDataDisplay(info);
         console.debug(info);
     };
@@ -242,7 +242,7 @@ let RowMatronApp = /** @class */ (function () {
         //console.log(data);
         if(data['distance'] > 95) {
             this.updateScoreboardArrayAndObject();
-            $("#NextPlayer").show();
+            $("#next-player").show();
             $("#ghost-bar").width(0);
             this.showGhost = false;
         }
@@ -264,16 +264,16 @@ let RowMatronApp = /** @class */ (function () {
         //console.log(data);
     };
     RowMatronApp.prototype.onConnectionStateChanged = function (oldState, newState) {
-        var _this = this;
+        let _this = this;
         if (newState === ergometer.MonitorConnectionState.readyForCommunication) {
             this.performanceMonitor.sampleRate=3; //MORE HERTZ
             this.updateDataDisplay(JSON.stringify(this._performanceMonitor.deviceInfo));
             //set some onClick events, love you jquery <3
-            $("#Check1").click(() => {
+            $("#reset-button").click(() => {
                 this.resetPM();
             });
-            $("#NextPlayer").click(() => {
-                this.NextPlayer();
+            $("#next-player").click(() => {
+                this.nextPlayer();
             })
             this.performanceMonitor.newCsafeBuffer()
                 .getStrokeState({
@@ -290,11 +290,11 @@ let RowMatronApp = /** @class */ (function () {
                 .send().catch(e => console.log(e))
                 .then(() => {
                     console.log("Set Program succesfully!");
-                    $("#StartScan").hide();
+                    $("#start-ble-button").hide();
                     $("textarea").hide();
                     $(".hide-on-connect").hide();
                     $("#holder").show();
-                    $("#Check1").show();
+                    $("#reset-button").show();
             });
             this.setCurrentPlayerDisplay(); // cant use 'this' in a .then() so... ; doesnt really matter.
             this.setCustomDistance(100);
@@ -360,9 +360,6 @@ function hideOnStart() {
 
 function updateBackground(percentage) {
     document.body.style.backgroundImage = "linear-gradient(90deg, blue " + percentage + "%, transparent 0%)";
-
-
-
 }
 
 function getGhostDistance(playerdata, currentTime) {
@@ -382,7 +379,6 @@ function getGhostDistance(playerdata, currentTime) {
         }
         return false;
     })
-
     if (playerdata[0].time === currentTime) {
         playerdata = playerdata[0];
         distance = playerdata.distance;
@@ -393,8 +389,6 @@ function getGhostDistance(playerdata, currentTime) {
         console.debug(timepercentagepassed, distancepassed);
         distance = playerdata[0].distance + (distancepassed * timepercentagepassed);
     }
-
-
+    console.debug(distance);
     return distance;
-
 }
