@@ -11,7 +11,7 @@ let RowMatronApp = /** @class */ (function () {
         this.initialize();
         $("#holder").hide();
         $("#reset-button").hide();
-        $("#next-player").hide();
+        $("#next-player-button").hide();
         //$("#scoreboard").hide();
     }
     Object.defineProperty(RowMatronApp.prototype, "performanceMonitor", {
@@ -172,7 +172,7 @@ let RowMatronApp = /** @class */ (function () {
         this.currentPlayerData.timestamps = [];
         this.setCurrentPlayerDisplay();
         this.resetPM();
-        $("#next-player").hide();
+        $("#next-player-button").hide();
         this.showGhost = true;
     }
     RowMatronApp.prototype.resetPM = function () {
@@ -242,7 +242,7 @@ let RowMatronApp = /** @class */ (function () {
         //console.log(data);
         if(data['distance'] > 95) {
             this.updateScoreboardArrayAndObject();
-            $("#next-player").show();
+            $("#next-player-button").show();
             $("#ghost-bar").width(0);
             this.showGhost = false;
         }
@@ -272,7 +272,7 @@ let RowMatronApp = /** @class */ (function () {
             $("#reset-button").click(() => {
                 this.resetPM();
             });
-            $("#next-player").click(() => {
+            $("#next-player-button").click(() => {
                 this.nextPlayer();
             })
             this.performanceMonitor.newCsafeBuffer()
