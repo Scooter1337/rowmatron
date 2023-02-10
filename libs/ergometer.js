@@ -2937,8 +2937,8 @@ var ergometer;
                         prevCommandIndex = commandIndex;
                     }
                 });
-                console.error(commandArray);
-                console.error(rawCommandBuffer);
+                //console.error(commandArray);
+                //console.error(rawCommandBuffer);
                 _this._sendBufferQueue.push({
                     commandArray: commandArray,
                     resolve: resolve,

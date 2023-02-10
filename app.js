@@ -35,9 +35,7 @@ let RowMatronApp = /** @class */ (function () {
                 waitForResponse: false,
                 command: 133,
             })
-            .send().catch(e=> console.error(e));
-
-
+            .send();
     }
     RowMatronApp.prototype.updateScoreboardArrayAndObject = function () {
         const player = this._players[this.currentPlayerData.id];
@@ -72,8 +70,10 @@ let RowMatronApp = /** @class */ (function () {
         if(general) {
             let distance = data['workoutDuration'] - data['distance'];
             let time = this.timeToSeconds(data['elapsedTime']);
+            let mstime = data['elapsedTime'];
             if(data['workoutState'] === 0) {
                 time = 0; //time may be above 0, even though the workout is stopped, this sets it to 0.
+                mstime = 0;
             }
             distance = Math.max(0, distance); //no negativity allowed...
             $("#time").text(time);
@@ -82,12 +82,13 @@ let RowMatronApp = /** @class */ (function () {
             //I'd rather replace this with a div with z-index -10000, so we can add transitions to make it less choppy
             //Not a priority, with 10Hz it's pretty smooth already.
             updateBackground(percentage);
-
-            if(this._scoreBoard.length > 0 && this.currentPlayerData.id > 0 && this.showGhost) { //ghost
-                const ghostDistance = getGhostDistance(this.currentPlayerData, time);
+            if(this._scoreBoard.length > 0 && this.currentPlayerData.id > 0 && this.showGhost && mstime > 0) { //ghost
+                const ghostDistance = getGhostDistance(this._scoreBoard[0].timestamps, mstime);
                 const ghostPercentage = ghostDistance / data['workoutDuration'];
                 const width = Math.min(ghostPercentage, 1) * $(document).width();
+                console.log(ghostDistance, ghostPercentage, width);
                 $("#ghost-bar").width(width);
+                //console.log($("#ghost-bar").width());
             }
         }
     };
@@ -120,25 +121,14 @@ let RowMatronApp = /** @class */ (function () {
         setStorage('players', text);
     }
 
-    /*RowMatronApp.prototype.changePollingRateToFastest = function () {
-
-            let newBuffer = this.performanceMonitor.newCsafeBuffer();
-            newBuffer.addRawCommand({
-                command: 118,
-                detailCommand: 51,
-                data: [3],
-                waitForResponse: false
-            }).send().then(()=>console.error('Changed polling rate')).catch(e => console.error(e));
-    }*/
-
     RowMatronApp.prototype.initialize = function () {
         const _this = this;
         this._performanceMonitor = new ergometer.PerformanceMonitorBle();
-        this._performanceMonitor.sampleRate = 3;
+        this._performanceMonitor.sampleRate = 3; //0 = 1Hz, 1 = 2Hz, 2 = 4Hz, 3 = 10Hz
         this._players = [];
         this._scoreBoard = [];// [{player: 'Dylan', time: 18000, timestamps: [{time: 100, distance: 1},]}];
         this.currentPlayerData = {id: 0, bestTime: 0, pace: 0, timestamps: []};
-
+        this.distance = 100;
         this.showGhost = false;
         //this.performanceMonitor.logLevel=ergometer.LogLevel.trace;
         this.performanceMonitor.logEvent.sub(this, this.onLog);
@@ -158,12 +148,23 @@ let RowMatronApp = /** @class */ (function () {
         this.performanceMonitor.powerCurveEvent.sub(this, this.onPowerCurve);
         $("#start-ble-button").click(function () {
             _this.getPlayersFromTextArea();
+            _this.getDistanceFromInputField();
             _this.startScan();
         });
         if (!ergometer.ble.hasWebBlueTooth()) {
             console.error("WEB BLE NOT AVAILABLE");
         }
     };
+
+    RowMatronApp.prototype.getDistanceFromInputField = function () {
+        const distance = $("#distance-input").val();
+        if (typeof distance === 'number' && distance >= 100 && distance <= 9999) {
+            this.distance = distance;
+        } else {
+            this.distance = 100;
+        }
+        setStorage('workDistance', this.distance);
+    }
 
     RowMatronApp.prototype.nextPlayer = function () {
         this.currentPlayerData.id++;
@@ -176,17 +177,19 @@ let RowMatronApp = /** @class */ (function () {
         this.showGhost = true;
     }
     RowMatronApp.prototype.resetPM = function () {
+        this.currentPlayerData.timestamps = [];
+
         let newBuffer = this.performanceMonitor.newCsafeBuffer();
         newBuffer.addRawCommand({
             command: 118,
             detailCommand: 19,
             data: [1, 2],
             waitForResponse: false
-        }).send().then(() => this.setCustomDistance(100)); //F1 76 04 13 02 01 02 62 F2
+        }).send().then(() => this.setCustomDistance(this.distance)); //F1 76 04 13 02 01 02 62 F2
     }
     RowMatronApp.prototype.onLog = function (info) {
         this.updateDataDisplay(info);
-        console.debug(info);
+        //console.debug(info);
     };
     RowMatronApp.prototype.onRowingGeneralStatus = function (data) {
         this.updateDataDisplay(data, true); // + JSON.stringify
@@ -297,7 +300,7 @@ let RowMatronApp = /** @class */ (function () {
                     $("#reset-button").show();
             });
             this.setCurrentPlayerDisplay(); // cant use 'this' in a .then() so... ; doesnt really matter.
-            this.setCustomDistance(100);
+            this.setCustomDistance(this.distance);
         }
     };
     RowMatronApp.prototype.onPowerCurve = function (curve) {
@@ -313,6 +316,10 @@ let RowMatronApp = /** @class */ (function () {
         const localStorageText = getStorage('players'); // get persistent storage
         if(localStorageText.length > 0) { //does persistent storage contain info? then set the textarea to the value
             $("#textarea").val(localStorageText);
+        }
+        const localDistance = getStorage('workDistance');
+        if(localDistance.length >= 3) {
+            $("#distance-input").val(localDistance);
         }
     };
     return RowMatronApp;
@@ -359,12 +366,16 @@ function hideOnStart() {
 }
 
 function updateBackground(percentage) {
-    document.body.style.backgroundImage = "linear-gradient(90deg, blue " + percentage + "%, transparent 0%)";
+    //document.body.style.backgroundImage = "linear-gradient(90deg, blue " + percentage + "%, transparent 0%)";
+    $("#background-progress-bar").width(Math.min(percentage/100, 1) * $(document).width());
 }
 
 function getGhostDistance(playerdata, currentTime) {
     let distance;
-    playerdata.timestamps.filter((e, i, m) => {
+    console.log(playerdata);
+    console.log(currentTime);
+
+    playerdata = playerdata.filter((e, i, m) => {
         if (i === 0 && currentTime < e.time) {
             return true;
         }
@@ -379,6 +390,7 @@ function getGhostDistance(playerdata, currentTime) {
         }
         return false;
     })
+    console.log(playerdata);
     if (playerdata[0].time === currentTime) {
         playerdata = playerdata[0];
         distance = playerdata.distance;
